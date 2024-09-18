@@ -6,6 +6,109 @@
     <title>MWB</title>
 </head>
 <body>
-    
+<header>
+    <h1>Programa para reunion mwb</h1>
+</header>
+
+<nav>
+
+</nav>
+
+<p>
+    Esta pagina no guarda informacion y no necesitas crear una cuenta, gratis y facil de usar.
+    Pero si tienes dudas de como usar esta pagina te invitamos a ver nuestro video tutorial
+</p>
+
+<h2>Gestion de publicadores</h2>
+  <!-- Cuadro de texto para agregar miembros -->
+  <input type="text" id="nuevoMiembro" placeholder="Escribe un nombre">
+  <button id="agregarMiembro">Agregar miembro</button>
+
+  <!-- Lista de miembros -->
+  <ul id="miembros">
+      <!-- Aquí aparecerán los miembros -->
+  </ul>
+
+
+
+
+
+
+
+
+  <script>
+            // Referencias a los elementos
+            const listaMiembros = document.querySelector('#miembros');
+        const inputMiembro = document.querySelector('#nuevoMiembro');
+        const botonAgregar = document.querySelector('#agregarMiembro');
+
+        // Función para agregar miembro
+        botonAgregar.addEventListener('click', () => {
+            const nombre = inputMiembro.value;
+            if (nombre) {
+                const li = document.createElement('li');
+                const span = document.createElement('span');
+                span.textContent = nombre;
+
+                // Botón para eliminar miembro
+                const botonEliminar = document.createElement('button');
+                botonEliminar.textContent = 'x';
+                botonEliminar.classList.add('btn');
+
+                // Evento para eliminar miembro
+                botonEliminar.addEventListener('click', () => {
+                    li.remove();
+                });
+
+                // Botón para editar miembro
+                const botonEditar = document.createElement('button');
+                botonEditar.textContent = 'Editar';
+                botonEditar.classList.add('btn');
+
+                // Evento para editar miembro
+                botonEditar.addEventListener('click', () => {
+                    if (botonEditar.textContent === 'Editar') {
+                        const inputEditar = document.createElement('input');
+                        inputEditar.type = 'text';
+                        inputEditar.value = span.textContent;
+                        li.replaceChild(inputEditar, span);
+                        botonEditar.textContent = 'Guardar';
+                    } else {
+                        const nuevoNombre = li.querySelector('input').value;
+                        span.textContent = nuevoNombre;
+                        li.replaceChild(span, li.querySelector('input'));
+                        botonEditar.textContent = 'Editar';
+                    }
+                });
+
+                // Botón para pausar/despausar miembro
+                const botonPausar = document.createElement('button');
+                botonPausar.textContent = '||';
+                botonPausar.classList.add('btn');
+
+                // Evento para pausar/despausar miembro
+                botonPausar.addEventListener('click', () => {
+                    if (botonPausar.textContent === '||') {
+                        span.classList.add('pausado');  // Aplica estilo pausado
+                        botonPausar.textContent = '▶';  // Cambia el texto del botón
+                    } else {
+                        span.classList.remove('pausado');  // Quita el estilo pausado
+                        botonPausar.textContent = '||';  // Cambia el texto de nuevo
+                    }
+                });
+
+                // Añadir elementos al <li>
+                li.appendChild(span);
+                li.appendChild(botonEditar);
+                li.appendChild(botonPausar);
+                li.appendChild(botonEliminar);
+                listaMiembros.appendChild(li);
+
+                // Limpiar el input
+                inputMiembro.value = '';
+            }
+        });
+</script>
+
 </body>
 </html>
