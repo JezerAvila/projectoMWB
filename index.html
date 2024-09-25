@@ -3,112 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWB</title>
+    <title>Generador de Parejas</title>
 </head>
 <body>
-<header>
-    <h1>Programa para reunion mwb</h1>
-</header>
+    <header>
+        <h1>Programa para Generar Parejas</h1>
+    </header>
 
-<nav>
+    <h2>Agregar Miembros</h2>
+    <input type="text" id="nuevoMiembro" placeholder="Escribe un nombre">
+    <button id="agregarMiembro">Agregar miembro</button>
 
-</nav>
+    <h2>Lista de Miembros</h2>
+    <ul id="miembros"></ul>
 
-<p>
-    Esta pagina no guarda informacion y no necesitas crear una cuenta, gratis y facil de usar.
-    Pero si tienes dudas de como usar esta pagina te invitamos a ver nuestro video tutorial
-</p>
+    <button id="generarCombinaciones">Generar Combinaciones</button>
 
-<h2>Gestion de publicadores</h2>
-  <!-- Cuadro de texto para agregar miembros -->
-  <input type="text" id="nuevoMiembro" placeholder="Escribe un nombre">
-  <button id="agregarMiembro">Agregar miembro</button>
+    <h2>Combinaciones de Parejas</h2>
+    <ul id="combinaciones"></ul>
 
-  <!-- Lista de miembros -->
-  <ul id="miembros">
-      <!-- Aquí aparecerán los miembros -->
-  </ul>
-
-
-
-
-
-
-
-
-  <script>
-            // Referencias a los elementos
-            const listaMiembros = document.querySelector('#miembros');
+    <script>
+        const listaMiembros = document.querySelector('#miembros');
         const inputMiembro = document.querySelector('#nuevoMiembro');
         const botonAgregar = document.querySelector('#agregarMiembro');
+        const botonGenerarCombinaciones = document.querySelector('#generarCombinaciones');
+        const listaCombinaciones = document.querySelector('#combinaciones');
+
+        // Array global para guardar los nombres de los miembros
+        let miembros = [];
 
         // Función para agregar miembro
         botonAgregar.addEventListener('click', () => {
-            const nombre = inputMiembro.value;
+            const nombre = inputMiembro.value.trim();
             if (nombre) {
-                const li = document.createElement('li');
-                const span = document.createElement('span');
-                span.textContent = nombre;
-
-                // Botón para eliminar miembro
-                const botonEliminar = document.createElement('button');
-                botonEliminar.textContent = 'x';
-                botonEliminar.classList.add('btn');
-
-                // Evento para eliminar miembro
-                botonEliminar.addEventListener('click', () => {
-                    li.remove();
-                });
-
-                // Botón para editar miembro
-                const botonEditar = document.createElement('button');
-                botonEditar.textContent = 'Editar';
-                botonEditar.classList.add('btn');
-
-                // Evento para editar miembro
-                botonEditar.addEventListener('click', () => {
-                    if (botonEditar.textContent === 'Editar') {
-                        const inputEditar = document.createElement('input');
-                        inputEditar.type = 'text';
-                        inputEditar.value = span.textContent;
-                        li.replaceChild(inputEditar, span);
-                        botonEditar.textContent = 'Guardar';
-                    } else {
-                        const nuevoNombre = li.querySelector('input').value;
-                        span.textContent = nuevoNombre;
-                        li.replaceChild(span, li.querySelector('input'));
-                        botonEditar.textContent = 'Editar';
-                    }
-                });
-
-                // Botón para pausar/despausar miembro
-                const botonPausar = document.createElement('button');
-                botonPausar.textContent = '||';
-                botonPausar.classList.add('btn');
-
-                // Evento para pausar/despausar miembro
-                botonPausar.addEventListener('click', () => {
-                    if (botonPausar.textContent === '||') {
-                        span.classList.add('pausado');  // Aplica estilo pausado
-                        botonPausar.textContent = '▶';  // Cambia el texto del botón
-                    } else {
-                        span.classList.remove('pausado');  // Quita el estilo pausado
-                        botonPausar.textContent = '||';  // Cambia el texto de nuevo
-                    }
-                });
-
-                // Añadir elementos al <li>
-                li.appendChild(span);
-                li.appendChild(botonEditar);
-                li.appendChild(botonPausar);
-                li.appendChild(botonEliminar);
-                listaMiembros.appendChild(li);
-
-                // Limpiar el input
-                inputMiembro.value = '';
+                miembros.push(nombre);  // Agregar el nuevo miembro al array
+                agregarMiembroALaLista(nombre);  // Añadir a la lista visible
+                inputMiembro.value = '';  // Limpiar el input
             }
         });
-</script>
 
+        // Función para agregar un miembro a la lista visual
+        function agregarMiembroALaLista(nombre) {
+            const li = document.createElement('li');
+            const span = document.createElement('span');
+            span.textContent = nombre;
+
+            // Botón para eliminar miembro
+            const botonEliminar = document.createElement('button');
+            botonEliminar.textContent = 'X';
+            botonEliminar.addEventListener('click', () => {
+                li.remove();
+                miembros = miembros.filter(miembro => miembro !== nombre);  // Eliminar del array
+            });
+
+            // Botón para editar miembro
+            const botonEditar = document.createElement('button');
+            botonEditar.textContent = 'Editar';
+            botonEditar.addEventListener('click', () => {
+                const nuevoNombre = prompt('Editar nombre:', nombre);
+                if (nuevoNombre) {
+                    span.textContent = nuevoNombre;
+                    miembros[miembros.indexOf(nombre)] = nuevoNombre;  // Actualizar en el array
+                }
+            });
+
+            // Botón para pausar/despausar miembro
+            const botonPausar = document.createElement('button');
+            botonPausar.textContent = '||'; 
+            botonPausar.addEventListener('click', () => {
+                span.classList.toggle('pausado');
+                botonPausar.textContent = span.classList.contains('pausado') ? '▶' : '||';
+            });
+
+            // Añadir elementos al <li>
+            li.appendChild(span);
+            li.appendChild(botonEditar);
+            li.appendChild(botonPausar);
+            li.appendChild(botonEliminar);
+            listaMiembros.appendChild(li);
+        }
+
+        // Función para generar combinaciones de parejas
+        botonGenerarCombinaciones.addEventListener('click', () => {
+            listaCombinaciones.innerHTML = '';  // Limpiar la lista de combinaciones
+            const combinaciones = [];
+
+            // Generar todas las combinaciones posibles de 2 en 2
+            for (let i = 0; i < miembros.length; i++) {
+                for (let j = i + 1; j < miembros.length; j++) {
+                    combinaciones.push([miembros[i], miembros[j]]);
+                }
+            }
+
+            // Mostrar las combinaciones en la lista
+            combinaciones.forEach((pareja, index) => {
+                const li = document.createElement('li');
+                li.textContent = `Pareja ${index + 1}: ${pareja[0]} y ${pareja[1]}`;
+                listaCombinaciones.appendChild(li);
+            });
+        });
+    </script>
+
+    <style>
+        .pausado {
+            text-decoration: line-through; /* Muestra a los miembros pausados con una línea */
+            color: grey; /* Cambia el color a gris */
+        }
+    </style>
 </body>
 </html>
