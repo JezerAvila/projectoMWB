@@ -56,16 +56,29 @@
                 miembros = miembros.filter(miembro => miembro !== nombre);  // Eliminar del array
             });
 
-            // Botón para editar miembro
-            const botonEditar = document.createElement('button');
-            botonEditar.textContent = 'Editar';
-            botonEditar.addEventListener('click', () => {
-                const nuevoNombre = prompt('Editar nombre:', nombre);
+        // Botón para editar miembro
+        const botonEditar = document.createElement('button');
+        botonEditar.textContent = 'Editar';
+        botonEditar.addEventListener('click', () => {
+            if (botonEditar.textContent === 'Editar') {
+                const inputEditar = document.createElement('input');
+                inputEditar.type = 'text';
+                inputEditar.value = span.textContent;
+                li.replaceChild(inputEditar, span);  // Reemplazar el texto con el input
+                botonEditar.textContent = 'Guardar';
+            } else {
+                const nuevoNombre = li.querySelector('input').value.trim();
                 if (nuevoNombre) {
-                    span.textContent = nuevoNombre;
+                    span.textContent = nuevoNombre;  // Actualizar el nombre en el span
                     miembros[miembros.indexOf(nombre)] = nuevoNombre;  // Actualizar en el array
+                    li.replaceChild(span, li.querySelector('input'));  // Reemplazar el input con el span
+                    botonEditar.textContent = 'Editar';
+                } else {
+                    alert('El nombre no puede estar vacío.');
                 }
-            });
+            }
+        });
+
 
             // Botón para pausar/despausar miembro
             const botonPausar = document.createElement('button');
