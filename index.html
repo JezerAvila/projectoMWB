@@ -34,6 +34,7 @@
         const listaCombinaciones = document.querySelector('#combinaciones');
         const botonSeleccionAleatoria = document.querySelector('#seleccionAleatoria');
         const listaParejasAleatorias = document.querySelector('#listaParejasAleatorias');
+        const textoParejasAleatorias = document.querySelector('#textoParejasAleatorias');
 
         // Array global para guardar los nombres de los miembros
         let miembros = [];
@@ -60,6 +61,7 @@
             botonEliminar.addEventListener('click', () => {
                 li.remove();
                 miembros = miembros.filter(miembro => miembro !== nombre);  // Eliminar del array
+                actualizarEstiloDeCombinaciones();  // Actualizar el estilo de combinaciones
             });
 
         // Botón para editar miembro
@@ -79,6 +81,7 @@
                     miembros[miembros.indexOf(nombre)] = nuevoNombre;  // Actualizar en el array
                     li.replaceChild(span, li.querySelector('input'));  // Reemplazar el input con el span
                     botonEditar.textContent = 'Editar';
+                    actualizarEstiloDeCombinaciones();  // Actualizar el estilo de combinaciones
                 } else {
                     alert('El nombre no puede estar vacío.');
                 }
@@ -90,8 +93,9 @@
             const botonPausar = document.createElement('button');
             botonPausar.textContent = '||'; 
             botonPausar.addEventListener('click', () => {
-                span.classList.toggle('pausado');
+                span.classList.toggle('pausado');   //classList.toggle('pausado') añade o remueve la clase 'pausado' del elemento span. Si la clase 'pausado' ya está presente, se remueve; si no está, se agrega.
                 botonPausar.textContent = span.classList.contains('pausado') ? '▶' : '||';
+                actualizarEstiloDeCombinaciones();  // Actualizar el estilo de combinaciones
             });
 
             // Añadir elementos al <li>
@@ -102,7 +106,26 @@
             listaMiembros.appendChild(li);
         }
 
+        // Función para actualizar el estilo de las combinaciones basándose en los miembros pausados
+        function actualizarEstiloDeCombinaciones() {
+        const combinacionesLi = listaCombinaciones.querySelectorAll('li');  // Seleccionar todos los <li> en listaCombinaciones
 
+            combinacionesLi.forEach(li => {
+                const texto = li.textContent;
+                const [miembro1, miembro2] = texto.match(/\(([^)]+)\)/)[1].split(' y ');  // Obtener los nombres de los miembros de la pareja
+                
+                // Buscar los spans correspondientes a cada miembro en la lista de miembros
+                const miembro1Span = [...listaMiembros.querySelectorAll('span')].find(span => span.textContent === miembro1.trim());
+                const miembro2Span = [...listaMiembros.querySelectorAll('span')].find(span => span.textContent === miembro2.trim());
+
+                // Verificar si alguno de los miembros está pausado y aplicar el estilo
+                if (miembro1Span?.classList.contains('pausado') || miembro2Span?.classList.contains('pausado')) {
+                    li.classList.add('pausado');
+                } else {
+                    li.classList.remove('pausado');
+                }
+            });
+        }
 
         // Declarar combinaciones fuera del bloque para que sea accesible en otros lugares
         let combinaciones = [];
@@ -129,7 +152,10 @@
 
         // Función para seleccionar parejas aleatoriamente
         botonSeleccionAleatoria.addEventListener('click', () => {
-            let parejasDeseadas = miembros.length / 2;  // Número de parejas deseadas
+
+            //numero de parejas deseadas sin repetir usuario seria usuarios/2 pero lo redondeamos asi abajo para
+            //evitar errores con cantidades impares de usuarios
+            let parejasDeseadas = Math.floor(miembros.length / 2);  
 
             // Algoritmo de Fisher-Yates para barajar el array de combinaciones
             function shuffleArray(array) {
@@ -148,6 +174,8 @@
            
             let parejasAleatorias = [];  //Array donde agregaremos las parejas que vayamos seleccionando aleatoriamente
             let personasUsadas = new Set();  // Set para rastrear las personas que ya están en parejas seleccionadas
+            let intentos = 0;
+            const MAX_INTENTOS = 1000;
             
 
             //funcion para seleccionar elemento aleatoriamente
@@ -157,8 +185,13 @@
             }
 
             // Bucle para seleccionar parejas sin repetir personas
-            while  (parejasAleatorias.length < parejasDeseadas) {
+            while  (parejasAleatorias.length < parejasDeseadas  && intentos < MAX_INTENTOS) {
+                intentos++;
                 let elementoAleatorio = seleccionarElementoAleatorio(combinacionesBarajadas);
+               
+                if (!elementoAleatorio) {
+                    break; // Salir si no quedan combinaciones
+                }
                 // Verificar si alguna persona en la pareja ya fue seleccionada
                 if (!personasUsadas.has(elementoAleatorio[0]) && !personasUsadas.has(elementoAleatorio[1])) {
                     parejasAleatorias.push(elementoAleatorio);  // Agregar la pareja a las seleccionadas
@@ -169,11 +202,20 @@
 
             // Mostrar las parejas seleccionadas
             listaParejasAleatorias.innerHTML = '';  // Limpiar la lista 
+            textoParejasAleatorias.textContent = `primeras ${parejasDeseadas} parejas tomas aleatoriamente sin repetir publicadores:`;
             parejasAleatorias.forEach((pareja) => {
                 const li = document.createElement('li');
                 li.textContent = `(${pareja[0]} y ${pareja[1]})`;
                 listaParejasAleatorias.appendChild(li);
             });
+
+            // Verificar si sobró una persona
+            const personasNoSeleccionadas = miembros.filter(persona => !personasUsadas.has(persona));
+            if (personasNoSeleccionadas.length > 0) {
+                const li = document.createElement('li');
+                li.textContent = `Persona no seleccionada: ${personasNoSeleccionadas[0]}`;  // Mostrar la persona no seleccionada
+                listaParejasAleatorias.appendChild(li);
+            }
         });
 
 
