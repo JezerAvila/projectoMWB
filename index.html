@@ -17,10 +17,14 @@
     <h2>Lista de Miembros</h2>
     <ul id="miembros"></ul>
 
-    <button id="generarCombinaciones">Generar Combinaciones</button>
+    <button id="generarCombinaciones">Generar<br>Combinaciones</button>
 
     <h2>Combinaciones de Parejas</h2>
     <ul id="combinaciones"></ul>
+
+    <button id="seleccionAleatoria">Tomar parejas<br>aleatoriamente</button>
+    <p id="textoParejasAleatorias"></p>
+    <ul id="listaParejasAleatorias"></ul>
 
     <script>
         const listaMiembros = document.querySelector('#miembros');
@@ -28,6 +32,8 @@
         const botonAgregar = document.querySelector('#agregarMiembro');
         const botonGenerarCombinaciones = document.querySelector('#generarCombinaciones');
         const listaCombinaciones = document.querySelector('#combinaciones');
+        const botonSeleccionAleatoria = document.querySelector('#seleccionAleatoria');
+        const listaParejasAleatorias = document.querySelector('#listaParejasAleatorias');
 
         // Array global para guardar los nombres de los miembros
         let miembros = [];
@@ -96,10 +102,14 @@
             listaMiembros.appendChild(li);
         }
 
+
+
+        // Declarar combinaciones fuera del bloque para que sea accesible en otros lugares
+        let combinaciones = [];
         // Función para generar combinaciones de parejas
         botonGenerarCombinaciones.addEventListener('click', () => {
             listaCombinaciones.innerHTML = '';  // Limpiar la lista de combinaciones
-            const combinaciones = [];
+            combinaciones = [];  // Reiniciar el array global para que esté vacío antes de agregar nuevas combinaciones
 
             // Generar todas las combinaciones posibles de 2 en 2
             for (let i = 0; i < miembros.length; i++) {
@@ -109,12 +119,67 @@
             }
 
             // Mostrar las combinaciones en la lista
-            combinaciones.forEach((pareja, index) => {
+            combinaciones.forEach((pareja) => {
                 const li = document.createElement('li');
-                li.textContent = `Pareja ${index + 1}: ${pareja[0]} y ${pareja[1]}`;
+                li.textContent = `(${pareja[0]} y ${pareja[1]})`;
                 listaCombinaciones.appendChild(li);
             });
         });
+
+
+        // Función para seleccionar parejas aleatoriamente
+        botonSeleccionAleatoria.addEventListener('click', () => {
+            let parejasDeseadas = miembros.length / 2;  // Número de parejas deseadas
+
+            // Algoritmo de Fisher-Yates para barajar el array de combinaciones
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    // Generar un índice aleatorio
+                    const j = Math.floor(Math.random() * (i + 1));
+                    
+                    // Intercambiar elementos array[i] y array[j]
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // Barajar el array de combinaciones globalmente
+            const combinacionesBarajadas = shuffleArray([...combinaciones]);  // Usar una copia para no modificar el array original
+           
+            let parejasAleatorias = [];  //Array donde agregaremos las parejas que vayamos seleccionando aleatoriamente
+            let personasUsadas = new Set();  // Set para rastrear las personas que ya están en parejas seleccionadas
+            
+
+            //funcion para seleccionar elemento aleatoriamente
+            function seleccionarElementoAleatorio(array) {
+                const indiceAleatorio = Math.floor(Math.random() * array.length);
+                return array[indiceAleatorio];
+            }
+
+            // Bucle para seleccionar parejas sin repetir personas
+            while  (parejasAleatorias.length < parejasDeseadas) {
+                let elementoAleatorio = seleccionarElementoAleatorio(combinacionesBarajadas);
+                // Verificar si alguna persona en la pareja ya fue seleccionada
+                if (!personasUsadas.has(elementoAleatorio[0]) && !personasUsadas.has(elementoAleatorio[1])) {
+                    parejasAleatorias.push(elementoAleatorio);  // Agregar la pareja a las seleccionadas
+                    personasUsadas.add(elementoAleatorio[0]);  // Marcar a la primera persona como usada
+                    personasUsadas.add(elementoAleatorio[1]);  // Marcar a la segunda persona como usada
+                }
+            }        
+
+            // Mostrar las parejas seleccionadas
+            listaParejasAleatorias.innerHTML = '';  // Limpiar la lista 
+            parejasAleatorias.forEach((pareja) => {
+                const li = document.createElement('li');
+                li.textContent = `(${pareja[0]} y ${pareja[1]})`;
+                listaParejasAleatorias.appendChild(li);
+            });
+        });
+
+
+
+
+
     </script>
 
     <style>
