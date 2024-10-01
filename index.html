@@ -150,7 +150,7 @@
             });
         });
 
-
+/* 
         // Función para seleccionar parejas aleatoriamente
         botonSeleccionAleatoria.addEventListener('click', () => {
 
@@ -217,7 +217,83 @@
                 li.textContent = `Persona no seleccionada: ${personasNoSeleccionadas[0]}`;  // Mostrar la persona no seleccionada
                 listaParejasAleatorias.appendChild(li);
             }
+        }); */
+        botonSeleccionAleatoria.addEventListener('click', () => {
+    let parejasDeseadas = Math.floor(miembros.length / 2);  // Máximo de parejas por ronda
+    let combinacionesRestantes = [...combinaciones];  // Copiar el array de combinaciones para no modificar el original
+    let todasLasParejasAleatorias = [];  // Aquí guardaremos todas las parejas seleccionadas en varias rondas
+    let iteracion = 1;
+
+    // Algoritmo de Fisher-Yates para barajar el array
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // Bucle principal para seleccionar parejas en múltiples rondas
+    while (combinacionesRestantes.length > 1 && parejasDeseadas > 0) {
+        let parejasAleatorias = [];  // Parejas de cada ronda
+        let personasUsadas = new Set();  // Set de personas ya seleccionadas
+        let intentos = 0;
+        const MAX_INTENTOS = 1000;
+
+        // Barajar combinaciones para esta ronda
+        combinacionesRestantes = shuffleArray(combinacionesRestantes);
+
+        // Seleccionar parejas sin repetir personas
+        while (parejasAleatorias.length < parejasDeseadas && intentos < MAX_INTENTOS && combinacionesRestantes.length > 0) {
+            intentos++;
+            let indiceAleatorio = Math.floor(Math.random() * combinacionesRestantes.length);
+            let elementoAleatorio = combinacionesRestantes[indiceAleatorio];
+
+            // Verificar si alguna persona ya ha sido usada en esta ronda
+            if (!personasUsadas.has(elementoAleatorio[0]) && !personasUsadas.has(elementoAleatorio[1])) {
+                parejasAleatorias.push(elementoAleatorio);
+                personasUsadas.add(elementoAleatorio[0]);
+                personasUsadas.add(elementoAleatorio[1]);
+
+                // Eliminar la pareja seleccionada de combinacionesRestantes (exactamente esa pareja)
+                combinacionesRestantes.splice(indiceAleatorio, 1);
+            }
+        }
+
+        // Si no hay más combinaciones posibles, termina el bucle
+        if (parejasAleatorias.length === 0) {
+            break;
+        }
+
+        // Guardar las parejas seleccionadas en esta ronda
+        todasLasParejasAleatorias.push(...parejasAleatorias);
+
+        // Mostrar los resultados de esta ronda
+        const header = document.createElement('h3');
+        header.textContent = `Iteración ${iteracion}:`;
+        listaParejasAleatorias.appendChild(header);
+
+        parejasAleatorias.forEach((pareja) => {
+            const li = document.createElement('li');
+            li.textContent = `(${pareja[0]} y ${pareja[1]})`;
+            listaParejasAleatorias.appendChild(li);
         });
+
+        iteracion++;
+    }
+
+    // Mostrar todas las parejas seleccionadas en total
+    console.log('Todas las parejas seleccionadas:', todasLasParejasAleatorias);
+
+    // Verificar si sobra alguna persona sin pareja
+    const personasNoSeleccionadas = miembros.filter(persona => !todasLasParejasAleatorias.some(pareja => pareja.includes(persona)));
+    if (personasNoSeleccionadas.length > 0) {
+        const li = document.createElement('li');
+        li.textContent = `Personas no seleccionadas: ${personasNoSeleccionadas.join(', ')}`;
+        listaParejasAleatorias.appendChild(li);
+    }
+});
+
 
 
 
